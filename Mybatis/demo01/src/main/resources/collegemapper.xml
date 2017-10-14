@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Mapperinterface.collegeMapper">
+
+
+    <resultMap id="getcollegeModifyID" type="entity.college">
+        <id column="collegdid" property="id"/>
+        <result column="name" property="name"/>
+    </resultMap>
+
+    <select id="getcollege" resultType="entity.college" resultMap="getcollegeModifyID">
+        SELECT * FROM college WHERE collegdid=#{id}
+    </select>
+
+
+    <select id="getCollegeandAllStu" resultType="entity.college" resultMap="getCollegeandAllStuResultMap">
+        select s.id id,s.name name,s.gender gender,addr,c.name cname,collegdid
+        from student s left join college c on c_id=collegdid
+        where collegdid=#{id}
+    </select>
+    <resultMap id="getCollegeandAllStuResultMap" type="entity.college">
+        <id column="collegdid" property="id"/>
+        <result column="cname" property="name"/>
+        <collection property="students" ofType="entity.stu">
+            <id column="id" property="id"/>
+            <result column="name" property="name"/>
+            <result column="gender" property="stuGender"/>
+            <result column="addr" property="addr"/>
+        </collection>
+    </resultMap>
+
+
+    <!-- 针对于查询一个List的结果非常简单，注意类型就是List中的元素的类型 -->
+    <select id="getAllstu" resultType="entity.stu">
+         SELECT * FROM student where c_id=#{id}
+    </select>
+
+    <select id="getCollegeandAllStuByStep" resultMap="getCollegeandAllStuByStepResultMap">
+        SELECT * FROM college where collegdid=#{id}
+    </select>
+
+    <resultMap id="getCollegeandAllStuByStepResultMap" type="entity.college">
+        <id column="collegdid" property="id"></id>
+        <result column="name" property="name"></result>
+        <collection property="students" select="getAllstu" column="collegdid"/>
+    </resultMap>
+</mapper>

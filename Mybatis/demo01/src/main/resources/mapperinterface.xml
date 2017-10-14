@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Mapperinterface.Demo01">
+
+    <!--这里的zzz是别名-->
+    <select id="SelectByID" resultType="zzz">
+    select * from emp where id = #{id}
+</select>
+    <insert id="add" parameterType="zzz">
+        INSERT INTO emp(id,name,addr) VALUES (#{id},#{name},#{addr})
+    </insert>
+
+    <update id="update" parameterType="zzz">
+        UPDATE emp SET NAME =#{name},addr=#{addr} WHERE id=#{id}
+    </update>
+
+    <delete id="del" parameterType="java.lang.Integer">
+        DELETE FROM emp where id=#{id}
+    </delete>
+
+    <update id="updatewithPara">
+      UPDATE emp SET NAME =#{n} WHERE id=#{id}
+    </update>
+</mapper>

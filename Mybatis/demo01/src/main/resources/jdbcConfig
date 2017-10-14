@@ -1,0 +1,7 @@
+jdbc.user root
+jdbc.password  123321
+jdbc.driverClass com.mysql.jdbc.Driver
+jdbc.JdbcUrl jdbc:mysql:///FORTEST
+
+jdbc.initPoolSize 5
+jdbc.MaxPoolSize 10

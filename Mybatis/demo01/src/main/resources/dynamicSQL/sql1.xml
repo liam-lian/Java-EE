@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Mapperinterface.dynamicSQL.sql1">
+
+    <select id="getComplete" resultType="entity.stu">
+        SELECT * FROM student
+        <trim prefix="WHERE" suffixOverrides="AND">
+            <if test="id!=null">id=#{id} AND </if>
+            <if test="addr!=null">id=#{addr} AND </if>
+            <if test="stuGender!=0">gender=#{stuGender} AND </if>
+            <if test="name!=null">name='${name}' AND </if>
+        </trim>
+    </select>
+
+    <select id="getComplete1">
+        SELECT * FROM student WHERE
+        <where>
+            <if test="id!=null">id=#{id} </if>
+            <if test="addr!=null">AND id=#{addr}  </if>
+            <if test="stuGender!=null">AND gender=#{stuGender}  </if>
+            <if test="name!=null">AND name=#{name}</if>
+        </where>
+    </select>
+
+    <insert id="insertmanyitem" >
+         INSERT INTO student (name,id, gender,addr,c_id) VALUES
+         <foreach collection="students" item="stu" separator=",">
+             (#{stu.name},#{stu.id},#{stu.stuGender},#{stu.addr},#{stu.college.id})
+         </foreach>
+    </insert>
+
+    <!--这个就是使用多条查询-->
+    <insert id="insertmanyitem02">
+        <foreach collection="students" separator=";" item="stu">
+            INSERT INTO student
+               <include refid="tableItem"/>
+             VALUES
+            (#{stu.name},#{stu.id},#{stu.stuGender},#{stu.addr},#{stu.college.id})
+        </foreach>
+    </insert>
+
+
+    <sql id="tableItem">
+        (name,id, gender,addr,c_id)
+    </sql>
+
+
+    <!-- 两个内置参数：
+	 	不只是方法传递过来的参数可以被用来判断，取值。。。
+	 	mybatis默认还有两个内置参数：
+	 	_parameter:代表整个参数
+	 		单个参数：_parameter就是这个参数
+	 		多个参数：参数会被封装为一个map；_parameter就是代表这个map
+
+	 	_databaseId:如果配置了databaseIdProvider标签。
+	 		_databaseId就是代表当前数据库的别名oracle
+	  -->
+
+
+    <select id="testInnerPara" resultType="entity.stu">
+
+        <if test="_databaseId=='mysql'">
+            SELECT * FROM student
+            <if test="_parameter!=null">
+                 WHERE id=#{_parameter.id}
+            </if>
+        </if>
+        <if test="_databaseId=='oracle'">
+            SELECT * FROM student123 WHERE id=#{_parameter.id}
+        </if>
+    </select>
+
+
+</mapper>

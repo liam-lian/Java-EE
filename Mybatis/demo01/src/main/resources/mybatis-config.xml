@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+
+<configuration>
+
+    <!-- 引入外部的文件 -->
+    <properties resource="jdbcConfig"></properties>
+
+
+    <!--一些基本的设置，name表示设置的属性，value表示具体设置的值-->
+
+    <!--<settings>-->
+        <!--<setting name="lazyLoadingEnabled" value="true"/>-->
+        <!--<setting name="aggressiveLazyLoading" value="false"/>-->
+    <!--</settings>-->
+
+
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING" />
+    </settings>
+
+    <typeAliases>
+        <!-- 为类起别名 ，不指定alias就是默认类名的首字母小写，指定alias就是使用指定好的别名-->
+        <typeAlias type="entity.stu" alias="zzz"></typeAlias>
+    </typeAliases>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql:///FORTEST?allowMultiQueries=true"/>
+                <property name="username" value="root"/>
+                <property name="password" value="123321"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+    </databaseIdProvider>
+
+    <mappers>
+        <mapper resource="mapper01.xml"/>
+        <mapper resource="mapperinterface.xml"/>
+        <mapper class="Mapperinterface.Demo02"></mapper>
+
+        <mapper resource="stumapper.xml"></mapper>
+        <mapper resource="collegemapper.xml"></mapper>
+        <mapper resource="dynamicSQL/sql1.xml"></mapper>
+    </mappers>
+
+</configuration>

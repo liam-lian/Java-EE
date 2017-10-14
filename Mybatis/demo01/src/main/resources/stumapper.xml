@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Mapperinterface.stuMapper">
+
+
+    <!--自定义某个javaBean的封装规则
+         type：自定义规则的Java类型
+         id:唯一id,方便引用
+      -->
+    <resultMap type="entity.stu" id="MySimpleStu">
+        <!--指定主键列的封装规则
+            id定义主键会底层有优化；
+            column：指定查出来的数据表的哪一列
+            property：指定对应的javaBean属性
+          -->
+        <id column="id" property="id"/>
+        <!-- 定义普通列封装规则 ,这里是因为名字不一样修改一下封装规则-->
+        <result column="gender" property="stuGender"/>
+        <!-- 其他不指定的列会自动封装：但是我们只要写resultMap就把全部的映射规则都写上。 -->
+        <result column="name" property="name"/>
+        <result column="addr" property="addr"/>
+    </resultMap>
+
+    <!-- resultMap:自定义结果集映射规则；  -->
+    <select id="getStudent"  resultMap="MySimpleStu">
+        select * from student where id=#{id}
+    </select>
+
+
+
+    <!--
+         需求：级联查询，查询学生的同时查询他的college
+     -->
+    <select id="getStudentandConnege01" resultMap="MyDifficultStu">
+        SELECT s.id id,s.name name,gender,addr,s.c_id cid,c.name cname
+        FROM student s ,college c
+        WHERE s.c_id=c.collegdid AND s.id=#{id}
+    </select>
+    <select id="getStudentandConnege02" resultMap="MyDifficultStu2">
+        SELECT s.id id,s.name name,gender,addr,s.c_id cid,c.name cname
+        FROM student s ,college c
+        WHERE s.c_id=c.collegdid AND s.id=#{id}
+    </select>
+
+    <!--
+        第一种方式：
+        联合查询：级联属性封装结果集
+        只需要在resultMap中指定级联就可以了
+      -->
+    <resultMap type="entity.stu" id="MyDifficultStu">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="addr" property="addr"/>
+        <result column="gender" property="stuGender"/>
+        <result column="cid" property="college.id"/>
+        <result column="cname" property="college.name"/>
+    </resultMap>
+    <!--
+        第二种方式：同样是级联查询，但是使用了<association>的标签
+        使用association定义关联的单个对象的封装规则；
+     -->
+    <resultMap type="entity.stu" id="MyDifficultStu2">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="addr" property="addr"/>
+        <result column="gender" property="stuGender"/>
+        <!--  association可以指定联合的javaBean对象
+              property="dept"：指定哪个属性是联合的对象
+              javaType:指定这个属性对象的类型[不能省略]
+        -->
+        <association property="college" javaType="entity.college">
+            <id column="cid" property="id"/>
+            <result column="cname" property="name"/>
+        </association>
+    </resultMap>
+
+
+
+    <!-- 使用association进行分步查询：
+        首先根据学生id找到学生记录，然后找到大学id
+        根据大学id找到大学信息
+        把查询到的大学信息填充到学生对象中。
+     -->
+    <resultMap type="entity.stu" id="StuByStep">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="addr" property="addr"/>
+        <result column="gender" property="stuGender"/>
+        <!-- association定义关联对象的封装规则
+            select:表明当前属性是调用select指定的方法查出的结果
+            column:为被调用的select方法传入参数
+            流程：使用select指定的方法（传入column指定的这列参数的值）查出对象，并封装给property指定的属性
+         -->
+        <association property="college"
+                     select="Mapperinterface.collegeMapper.getcollege"
+                     column="c_id">
+        </association>
+    </resultMap>
+    <select id="getStudentByStep" resultMap="StuByStep">
+        select * from student where id=#{id}
+
+    </select>
+
+    <!-- 可以使用延迟加载（懒加载）；(按需加载)
+            我们每次查询Employee对象的时候，都将一起查询出来。
+            部门信息在我们使用的时候再去查询；
+            分段查询的基础之上加上两个配置：
+            这两个Settings分别是：
+            <setting name="lazyloadingEnabled" value="true"/>
+            <setting name="aggressiveLazyLoading" value="false"/>
+     -->
+
+
+    <!-- ==================association============================ -->
+
+
+
+
+
+    <!--
+    场景二：
+        查询部门的时候将部门对应的所有员工信息也查询出来：注释在DepartmentMapper.xml中
+     -->
+
+      <!--<select id="getEmpsByDeptId" resultType="com.atguigu.mybatis.bean.Employee">-->
+        <!--select * from tbl_employee where d_id=#{deptId}-->
+    <!--</select>-->
+
+
+    <select id="getStudentWithDiscrimter" resultMap="zzz" resultType="entity.stu">
+        SELECT * FROM student WHERE id=#{id}
+    </select>
+
+
+    <resultMap id="zzz" type="entity.stu">
+
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="stuGender"/>
+
+        <discriminator javaType="int" column="gender">
+            <case value="1" resultType="entity.stu">
+                <result column="addr" property="addr"/>
+                <association property="college"
+                             select="Mapperinterface.collegeMapper.getcollege"
+                             column="c_id"/>
+            </case>
+            <case value="0" resultType="entity.stu">
+                <result column="name" property="addr"/>
+            </case>
+        </discriminator>
+    </resultMap>
+
+</mapper>
